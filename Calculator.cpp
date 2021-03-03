@@ -6,6 +6,7 @@
 #include <iterator>
 #include <sstream>
 #include <cctype>
+#include <memory>
 
 #include "Calculator.hpp"
 
@@ -13,25 +14,17 @@
 /* --- Declarations --- */
 bool isNumber(std::string const& s);
 std::string getArgument(std::vector<std::string>& vec);
-
+void printInstructions();
 
 /* --- Implementations --- */
-Calculator::~Calculator() {
-    // Delete all tokens
-    for (auto&& t : tokens) {
-        std::cout << "Calc del " << t->getName() << std::endl;
-        delete t;
-    }
-}
-
 void Calculator::print(std::ostream& os, std::string const& target) {
     auto it = std::find_if(tokens.begin(), tokens.end(),
         [&target](auto& it) { return it->getName() == target; });
     if (it != std::end(tokens))
         os << (*it)->evaluate() << std::endl;
     else
-        os << "Evaluation of expression " << target
-        << " failed, register not found." << std::endl;
+        os << "Evaluation of expression \"" << target
+        << "\" failed, register not found." << std::endl;
 }
 
 void Calculator::readInput() {
@@ -60,25 +53,25 @@ void Calculator::parseInput(std::string const& input) {
         std::string arg1 = getArgument(inputVec);
 
         // Create expression from argument 3
-        Expression* exp3;
+        std::shared_ptr<Expression> exp3;
         if (isNumber(arg3))
-            exp3 = new Expression(stoi(arg3));
+            exp3 = std::make_shared<Expression>(stoi(arg3));
         else
             exp3 = findToken(arg3);
 
         // Create operation from argument 2 and 3
-        Operation* OP;
-        if (arg2 == "ADD")
-            OP = new Addition(exp3);
-        else if (arg2 == "SUBTRACT")
-            OP = new Subtraction(exp3);
-        else if (arg2 == "MULTIPLY")
-            OP = new Multiplication(exp3);
+        std::shared_ptr<Operation> OP;
+        if (arg2 == "ADD" | arg2 == "+")
+            OP = std::make_shared<Addition>(exp3);
+        else if (arg2 == "SUBTRACT" | arg2 == "SUB" | arg2 == "-")
+            OP = std::make_shared<Subtraction>(exp3);
+        else if (arg2 == "MULTIPLY" | arg2 == "MULT" | arg2 == "*")
+            OP = std::make_shared<Multiplication>(exp3);
         else
             std::cout << "Invalid operation from user (input: " << input << ")" << std::endl;
 
         // Create expression from argument 1 with the above operation
-        Expression* exp1 = findToken(arg1);
+        std::shared_ptr<Expression> exp1 = findToken(arg1);
         exp1->addOP(OP);
         return;
     }
@@ -92,14 +85,17 @@ void Calculator::parseInput(std::string const& input) {
             return;
         }
     }
+    // HELP argument is given
+    else if (inputVec.size() == 1 && getArgument(inputVec) == "HELP") {
+        printInstructions();
+        return;
+    }
     // All other input
-    std::cout << "Invalid input from user (" << input << ")" << std::endl;
-    /*std::cout << "3 arguments required: [register] [operation] [value]" << std::endl;
-    std::cout << "or print [register]" << std::endl;*/
+    std::cout << "Invalid input from user (input: " << input << ")" << std::endl;
 }
 
 // Try to find token with name and add it if not found
-Expression* Calculator::findToken(std::string const& name) {
+std::shared_ptr<Expression> Calculator::findToken(std::string const& name) {
     auto it = std::find_if(tokens.begin(), tokens.end(),
         [&name](auto& it) { return it->getName() == name; });
 
@@ -107,7 +103,7 @@ Expression* Calculator::findToken(std::string const& name) {
         return (*it);
 
     // If token not found, create a new token and add it
-    Expression* exp = new Expression(name);
+    std::shared_ptr<Expression> exp = std::make_shared<Expression>(name);
     tokens.push_back(exp);
     return exp;
 }
@@ -145,26 +141,21 @@ void Calculator::read(std::string filename) {
     */
 }
 
+void printInstructions() {
+    std::cout
+        << "Available Commands:\n"
+        << "Command #1: [register] [operation] [value]\n"
+        << "Command #2: print [register]\n"
+        << "Command #3: help\n"
+        << "Command #4: quit\n"
+        << "Available Operations:\n"
+        << "Operation #1: add, +\n"
+        << "Operation #2: subtract, sub, -\n"
+        << "Operation #3: multiply, mult, *"
+        << std::endl;
+}
 
 /*
-
-    //tmp
-    Expression* val = new Expression(2);
-    Operation* OP = new Addition(val);
-    Expression* A = new Expression(OP, "A");
-    tokens.push_back(A);
-
-    Expression* val2 = new Expression(3);
-    Operation* OP2 = new Addition(val2);
-    Expression* B = new Expression(OP2, "B");
-    tokens.push_back(B);
-
-    Operation* OP3 = new Multiplication(A);
-    B->addOP(OP3);
-    B->addOP(OP3);
-
-    //print(std::cout, "A");
-    print(std::cout, "B");
 
     Example
     res + rev
@@ -181,6 +172,9 @@ void Calculator::read(std::string filename) {
 
 int main(int argc, char* argv[]) {
     Calculator calc{};
+    std::cout << "Simple Calculator\n"
+        << "Write help to see available commands!"
+        << std::endl;
 
     // Read from file
     if (argc > 1) {
@@ -191,8 +185,8 @@ int main(int argc, char* argv[]) {
     // Read from user
     else {
         std::cout << "Read from user" << std::endl;
+        calc.readInput();
     }
-    calc.readInput();
 
     return 0;
 }

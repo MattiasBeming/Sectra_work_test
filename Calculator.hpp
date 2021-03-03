@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #pragma once
 
@@ -27,56 +28,59 @@ class Multiplication;
 class Calculator {
 public:
     Calculator() = default;
-    ~Calculator();
     void print(std::ostream& os, std::string const& target);
     void readInput();
     void read(std::string filename);
-    Expression* findToken(std::string const& name);
+    std::shared_ptr<Expression> findToken(std::string const& name);
 private:
     void parseInput(std::string const& input);
 
     // Data Members
-    std::vector<Expression*> tokens;
+    std::vector<std::shared_ptr<Expression>> tokens;
 };
 
 class Expression {
 public:
     Expression(int const& val);
     Expression(std::string const& name);
-    Expression(Operation* OP, std::string const& name);
-    ~Expression();
-    void addOP(Operation* OP);
+    Expression(std::shared_ptr<Operation> OP, std::string const& name);
+    void addOP(std::shared_ptr<Operation> OP);
     int evaluate() const;
     std::string getName() const;
 private:
     std::string name{ "VALUE" };
     int value{ 0 };
-    std::vector<Operation*> operations;
+    std::vector<std::shared_ptr<Operation>> operations;
 };
 
 class Operation {
 public:
-    Operation(Expression* exp);
-    ~Operation();
-    virtual int evaluate(int const& val) const = 0;
-    Expression* exp;
+    Operation(std::shared_ptr<Expression> exp);
+    ~Operation() = default;
+    virtual int evaluate(int const& val) const = 0; // Evaluates recursively
+    virtual int evaluateSelf(int const& val) const = 0; // Evaluates expression
+    std::string getExpName() const;
 protected:
+    std::shared_ptr<Expression> exp;
 };
 
 class Addition : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
+    int evaluateSelf(int const& val) const override;
 };
 
 class Subtraction : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
+    int evaluateSelf(int const& val) const override;
 };
 
 class Multiplication : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
+    int evaluateSelf(int const& val) const override;
 };
