@@ -62,7 +62,7 @@ int Subtraction::evaluate(int const& val) const {
     return val - exp->evaluate();
 }
 
-int Subtraction::evaluateSelf(int const& val) const {
+int Subtraction::evaluateSelf(int const&) const {
     return 0;
 }
 

@@ -1,11 +1,12 @@
 
 #include <string>
+#include <cctype>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include <sstream>
-#include <cctype>
 #include <memory>
 
 #include "Calculator.hpp"
@@ -30,10 +31,24 @@ void Calculator::print(std::ostream& os, std::string const& target) {
 void Calculator::readInput() {
     std::string input;
     while (std::getline(std::cin, input)) {
-        if (input == "quit" || input == "QUIT")
+        if (input == "quit" || input == "QUIT" || input == "q")
             break;
         parseInput(input);
     }
+}
+
+void Calculator::read(std::string const& filename) {
+    // Read from text file
+    std::ifstream f;
+    f.open(filename, std::ifstream::in);
+
+    std::string input;
+    while (getline(f, input)) {
+        parseInput(input);
+    }
+
+    // Close the text file
+    f.close();
 }
 
 void Calculator::parseInput(std::string const& input) {
@@ -61,11 +76,11 @@ void Calculator::parseInput(std::string const& input) {
 
         // Create operation from argument 2 and 3
         std::shared_ptr<Operation> OP;
-        if (arg2 == "ADD" | arg2 == "+")
+        if ((arg2 == "ADD") | (arg2 == "+"))
             OP = std::make_shared<Addition>(exp3);
-        else if (arg2 == "SUBTRACT" | arg2 == "SUB" | arg2 == "-")
+        else if ((arg2 == "SUBTRACT") | (arg2 == "SUB") | (arg2 == "-"))
             OP = std::make_shared<Subtraction>(exp3);
-        else if (arg2 == "MULTIPLY" | arg2 == "MULT" | arg2 == "*")
+        else if ((arg2 == "MULTIPLY") | (arg2 == "MULT") | (arg2 == "*"))
             OP = std::make_shared<Multiplication>(exp3);
         else
             std::cout << "Invalid operation from user (input: " << input << ")" << std::endl;
@@ -125,29 +140,13 @@ std::string getArgument(std::vector<std::string>& vec) {
     return "NULL";
 }
 
-void Calculator::read(std::string filename) {
-    //ifstream f(filename + ".txt");
-    // Read from text file
-    /*
-    std::ifstream f(filename, std::ifstream::in);
-
-    std::string input;
-    while (getline(f, input)) {
-        std::cout << input;
-    }
-
-    // Close the text file
-    f.close();
-    */
-}
-
 void printInstructions() {
     std::cout
         << "Available Commands:\n"
         << "Command #1: [register] [operation] [value]\n"
         << "Command #2: print [register]\n"
         << "Command #3: help\n"
-        << "Command #4: quit\n"
+        << "Command #4: quit, q\n"
         << "Available Operations:\n"
         << "Operation #1: add, +\n"
         << "Operation #2: subtract, sub, -\n"
@@ -155,36 +154,20 @@ void printInstructions() {
         << std::endl;
 }
 
-/*
-
-    Example
-    res + rev
-    res - cost
-    rev + 200
-    cost + sal
-    sal + 20
-    sal * 5
-    cost + 10
-    print res
-    -> 90
-*/
-
-
 int main(int argc, char* argv[]) {
     Calculator calc{};
-    std::cout << "Simple Calculator\n"
-        << "Write help to see available commands!"
-        << std::endl;
 
     // Read from file
     if (argc > 1) {
-        std::cout << "Read from file" << std::endl;
+        std::cout << "Results from file: " << std::endl;
         std::string filename = argv[1];
         calc.read(filename);
     }
-    // Read from user
+    // Read from terminal
     else {
-        std::cout << "Read from user" << std::endl;
+        std::cout << "Simple Calculator\n"
+            << "Write help to see available commands!"
+            << std::endl;
         calc.readInput();
     }
 

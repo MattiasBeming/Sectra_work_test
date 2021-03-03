@@ -30,7 +30,7 @@ public:
     Calculator() = default;
     void print(std::ostream& os, std::string const& target);
     void readInput();
-    void read(std::string filename);
+    void read(std::string const& filename);
     std::shared_ptr<Expression> findToken(std::string const& name);
 private:
     void parseInput(std::string const& input);
@@ -75,7 +75,7 @@ class Subtraction : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
-    int evaluateSelf(int const& val) const override;
+    int evaluateSelf(int const&) const override;
 };
 
 class Multiplication : public Operation {
