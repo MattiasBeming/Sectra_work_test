@@ -17,7 +17,7 @@
 
 /* --- Declarations --- */
 class Calculator;
-class Expression;
+class Token;
 class Operation;
 class Addition;
 class Subtraction;
@@ -31,19 +31,18 @@ public:
     void print(std::ostream& os, std::string const& target);
     void readInput();
     void read(std::string const& filename);
-    std::shared_ptr<Expression> findToken(std::string const& name);
+    std::shared_ptr<Token> findToken(std::string const& name);
 private:
     void parseInput(std::string const& input);
 
     // Data Members
-    std::vector<std::shared_ptr<Expression>> tokens;
+    std::vector<std::shared_ptr<Token>> tokens;
 };
 
-class Expression {
+class Token {
 public:
-    Expression(int const& val);
-    Expression(std::string const& name);
-    Expression(std::shared_ptr<Operation> OP, std::string const& name);
+    Token(int const& val);
+    Token(std::string const& name);
     void addOP(std::shared_ptr<Operation> OP);
     int evaluate() const;
     std::string getName() const;
@@ -55,32 +54,27 @@ private:
 
 class Operation {
 public:
-    Operation(std::shared_ptr<Expression> exp);
+    Operation(std::shared_ptr<Token> token);
     ~Operation() = default;
     virtual int evaluate(int const& val) const = 0; // Evaluates recursively
-    virtual int evaluateSelf(int const& val) const = 0; // Evaluates expression
-    std::string getExpName() const;
 protected:
-    std::shared_ptr<Expression> exp;
+    std::shared_ptr<Token> token;
 };
 
 class Addition : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
-    int evaluateSelf(int const& val) const override;
 };
 
 class Subtraction : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
-    int evaluateSelf(int const&) const override;
 };
 
 class Multiplication : public Operation {
 public:
     using Operation::Operation;
     int evaluate(int const& val) const override;
-    int evaluateSelf(int const& val) const override;
 };

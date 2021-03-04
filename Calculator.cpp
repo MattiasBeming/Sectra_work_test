@@ -59,35 +59,33 @@ void Calculator::parseInput(std::string const& input) {
         std::istream_iterator<std::string>(),
         std::back_inserter(inputVec));
 
-    //std::cout << "inputVec.size() " << inputVec.size() << std::endl;
-
     // 3 arguments are given 
     if (inputVec.size() == 3) {
         std::string arg3 = getArgument(inputVec);
         std::string arg2 = getArgument(inputVec);
         std::string arg1 = getArgument(inputVec);
 
-        // Create expression from argument 3
-        std::shared_ptr<Expression> exp3;
+        // Create Token from argument 3
+        std::shared_ptr<Token> t3;
         if (isNumber(arg3))
-            exp3 = std::make_shared<Expression>(stoi(arg3));
+            t3 = std::make_shared<Token>(stoi(arg3)); //Create value-Token
         else
-            exp3 = findToken(arg3);
+            t3 = findToken(arg3);
 
         // Create operation from argument 2 and 3
         std::shared_ptr<Operation> OP;
         if ((arg2 == "ADD") | (arg2 == "+"))
-            OP = std::make_shared<Addition>(exp3);
+            OP = std::make_shared<Addition>(t3);
         else if ((arg2 == "SUBTRACT") | (arg2 == "SUB") | (arg2 == "-"))
-            OP = std::make_shared<Subtraction>(exp3);
+            OP = std::make_shared<Subtraction>(t3);
         else if ((arg2 == "MULTIPLY") | (arg2 == "MULT") | (arg2 == "*"))
-            OP = std::make_shared<Multiplication>(exp3);
+            OP = std::make_shared<Multiplication>(t3);
         else
             std::cout << "Invalid operation from user (input: " << input << ")" << std::endl;
 
-        // Create expression from argument 1 with the above operation
-        std::shared_ptr<Expression> exp1 = findToken(arg1);
-        exp1->addOP(OP);
+        // Create Token from argument 1 with the above operation
+        std::shared_ptr<Token> t1 = findToken(arg1);
+        t1->addOP(OP);
         return;
     }
     // 2 arguments are given
@@ -110,7 +108,7 @@ void Calculator::parseInput(std::string const& input) {
 }
 
 // Try to find token with name and add it if not found
-std::shared_ptr<Expression> Calculator::findToken(std::string const& name) {
+std::shared_ptr<Token> Calculator::findToken(std::string const& name) {
     auto it = std::find_if(tokens.begin(), tokens.end(),
         [&name](auto& it) { return it->getName() == name; });
 
@@ -118,9 +116,9 @@ std::shared_ptr<Expression> Calculator::findToken(std::string const& name) {
         return (*it);
 
     // If token not found, create a new token and add it
-    std::shared_ptr<Expression> exp = std::make_shared<Expression>(name);
-    tokens.push_back(exp);
-    return exp;
+    std::shared_ptr<Token> t = std::make_shared<Token>(name);
+    tokens.push_back(t);
+    return t;
 }
 
 
