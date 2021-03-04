@@ -18,7 +18,9 @@ std::string getArgument(std::vector<std::string>& vec);
 void printInstructions();
 
 /* --- Implementations --- */
+// Evaluate and print the value of token with name target
 void Calculator::print(std::ostream& os, std::string const& target) {
+    // Try to find token in list of tokens
     auto it = std::find_if(tokens.begin(), tokens.end(),
         [&target](auto& it) { return it->getName() == target; });
     if (it != std::end(tokens))
@@ -28,6 +30,7 @@ void Calculator::print(std::ostream& os, std::string const& target) {
         << "\" failed, register not found." << std::endl;
 }
 
+// Read input from terminal
 void Calculator::readInput() {
     std::string input;
     while (std::getline(std::cin, input)) {
@@ -37,8 +40,8 @@ void Calculator::readInput() {
     }
 }
 
+// Read input from file
 void Calculator::read(std::string const& filename) {
-    // Read from text file
     std::ifstream f;
     f.open(filename, std::ifstream::in);
 
@@ -51,6 +54,7 @@ void Calculator::read(std::string const& filename) {
     f.close();
 }
 
+// Parse input to build expression or execute commands
 void Calculator::parseInput(std::string const& input) {
     // Split input into separate strings (copy stream into vector)
     std::vector<std::string> inputVec;
@@ -94,7 +98,7 @@ void Calculator::parseInput(std::string const& input) {
         std::string arg1 = getArgument(inputVec);
 
         if (arg1 == "PRINT") {
-            print(std::cout, arg2);
+            print(std::cout, arg2); // Evaluate argument 2 
             return;
         }
     }

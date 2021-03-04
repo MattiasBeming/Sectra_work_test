@@ -6,14 +6,6 @@
 
 #pragma once
 
-/**
- * Assumptions:
- * Calculator is only required to handle integers and not any other data type.
- *     Possible extension: add template parameter to be able to represent values
- *                         as any integer or floating point.
- *
-*/
-
 
 /* --- Declarations --- */
 class Calculator;

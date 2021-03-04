@@ -13,10 +13,12 @@
 Token::Token(int const& val) : value{ val } {}
 Token::Token(std::string const& name) : name{ name } {}
 
+// Add operation to token operations
 void Token::addOP(std::shared_ptr<Operation> OP) {
     operations.push_back(OP);
 }
 
+// Evaluate all operations for this token
 int Token::evaluate() const {
     // If Token is a number
     if (operations.empty())
@@ -26,7 +28,7 @@ int Token::evaluate() const {
     int val = value;
     std::for_each(operations.begin(), operations.end(),
         [&val](std::shared_ptr<Operation> OP) {
-            val = OP->evaluate(val); });
+            val = OP->evaluate(val); }); // Recursive evaluation call
     return val;
 }
 
